@@ -33,16 +33,16 @@ int mandelbrot(double x, double y){
     }
     return 0;
 }
-//TODO: Implementar um mapeamento de cores bonitinho
+
 int color_map(int t){
-    int n = t / 16 * 5;
+    int n = (1 + t * 5 / 16) % 30;
     return n;
 }
 
-void init_color_pairs(){
-    int fg, i;
-    for(i = 0; i < 256; i++){
-        init_pair(i,6*i+2,COLOR_BLACK);
+void init_color_pairs(int codes[30]){
+    int i;
+    for(i = 0; i < 30; i++){
+        init_pair(i,codes[i],COLOR_BLACK);
     }
 }
 
@@ -51,8 +51,12 @@ int main(){
     noecho();    // Não mostra as teclas apertadas na tela
     cbreak();    // Desliga o line buffering
     curs_set(0); // Esconde o cursor
+
+    // Inicia o conjunto de cores
     start_color();
-    init_color_pairs();
+    int color_codes[30] = {21,27,33,39,45,51,50,49,48,47,46,82,118,154,190,226,
+                           220,214,208,202,196,197,198,199,200,201,165,129,93,57};
+    init_color_pairs(color_codes);
 
     // Desenhando o conjunto de mandelbrot na tela
     int i, j, t, c;
