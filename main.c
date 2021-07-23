@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <math.h>
 #include <ncurses.h>
 
+// Essas constantes devem ser trocadas por variáveis mais tarde
 #define XSCALE 4.7 / COLS
 #define XOFFSET 2.9
 #define YSCALE 2.6 / LINES
@@ -11,7 +13,7 @@ int mandelbrot(double x, double y){
     int t;
     double a = 0.0; // Parte real
     double b = 0.0; // Parte imaginária
-    double z;       // Magnitude do número a + bi
+    double z;       // Magnitude do número a + bi ao quadrado
 
     double a_sqr, b_sqr, a_new, b_new;
 
@@ -30,6 +32,23 @@ int mandelbrot(double x, double y){
         b_new = 2 * a * b + y;
         a = a_new;
         b = b_new;
+    }
+    return 0;
+}
+
+int supersample(double x, double y){
+    int centro = mandelbrot(x,y);
+    if(centro){
+        double xL = x - XSCALE/2;
+        double xR = x + XSCALE/2;
+        double yU = y + YSCALE/2;
+        double yD = y - YSCALE/2;
+
+        int mean = (int)round((centro + mandelbrot(x, yU) + mandelbrot(x, yD)
+                                      + mandelbrot(xR, y) + mandelbrot(xL, y)
+                                      + mandelbrot(xL,yU) + mandelbrot(xR,yU)
+                                      + mandelbrot(xL,yD) + mandelbrot(xR,yD))/9);
+        return mean;
     }
     return 0;
 }
@@ -69,7 +88,7 @@ int main(){
             y = YOFFSET - i * YSCALE;
 
             // Checando se o número da posição está no conjunto
-            t = mandelbrot(x, y);
+            t = supersample(x, y);
             if(t){
                 // Pintando o caractere nessa posição
                 c = color_map(t);
