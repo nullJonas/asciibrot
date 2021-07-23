@@ -39,15 +39,13 @@ int mandelbrot(double x, double y){
 int supersample(double x, double y){
     int centro = mandelbrot(x,y);
     if(centro){
-        double xL = x - XSCALE/2;
-        double xR = x + XSCALE/2;
-        double yU = y + YSCALE/2;
-        double yD = y - YSCALE/2;
+        /* Hexagonal supersampling: */
+        double a = XSCALE / 6;
+        double b = (3*YSCALE - XSCALE) / 6;
 
-        int mean = (int)round((centro + mandelbrot(x, yU) + mandelbrot(x, yD)
-                                      + mandelbrot(xR, y) + mandelbrot(xL, y)
-                                      + mandelbrot(xL,yU) + mandelbrot(xR,yU)
-                                      + mandelbrot(xL,yD) + mandelbrot(xR,yD))/9);
+        int mean = (int)round((centro + mandelbrot(x + 2*a, y)   + mandelbrot(x + a, y + b)
+                                      + mandelbrot(x - a, y + b) + mandelbrot(x - 2*a, y)
+                                      + mandelbrot(x - a, y - b) + mandelbrot(x + a, y - b))/7);
         return mean;
     }
     return 0;
