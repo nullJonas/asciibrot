@@ -37,9 +37,9 @@ int mandelbrot(double x, double y){
 }
 
 int supersample(double x, double y){
+    /* Hexagonal supersampling: */
     int centro = mandelbrot(x,y);
     if(centro){
-        /* Hexagonal supersampling: */
         double a = XSCALE / 6;
         double b = (3*YSCALE - XSCALE) / 6;
 
@@ -75,31 +75,65 @@ int main(){
                            220,214,208,202,196,197,198,199,200,201,165,129,93,57};
     init_color_pairs(color_codes);
 
-    // Desenhando o conjunto de mandelbrot na tela
     int i, j, t, c;
     double x, y;
-    for(i = 0; i < LINES; i++){
-        for(j = 0; j < COLS; j++){
+    double rposx = 0; // Posição do centro da tela
+    double rposy = 0; // em relação a x = 0, y = 0
+    char key;
+    while(key != '\e'){
+        // Realiza o movimento, a rotação e o dimensionamento
+        switch (key){
+            case 'w':
+                rposy += YSCALE;
+                break;
+            case 's':
+                rposy -= YSCALE;
+                break;
+            case 'd':
+                rposx += XSCALE * 2;
+                break;
+            case 'a':
+                rposx -= XSCALE * 2;
+                break;
+            case 'e':
+                //horário
+                break;
+            case 'q':
+                //anti-horário
+                break;
+            case 'i':
+                //+zoom
+                break;
+            case 'o':
+                //-zoom
+                break;
+            default:
+                break;
+        }
 
-            // Ajustando a posição e a escala da imagem
-            x = j * XSCALE - XOFFSET;
-            y = YOFFSET - i * YSCALE;
+        // Desenha o frame atual
+        for(i = 0; i < LINES; i++){
+            for(j = 0; j < COLS; j++){
+                // Ajustando a posição e as dimensões do pixel
+                x = j * XSCALE - XOFFSET + rposx;
+                y = YOFFSET - i * YSCALE + rposy;
 
-            // Checando se o número da posição está no conjunto
-            t = supersample(x, y);
-            if(t){
-                // Pintando o caractere nessa posição
-                c = color_map(t);
-                attron(COLOR_PAIR(c));
-                mvaddch(i, j, '@');
-                attroff(COLOR_PAIR(c));
+                // Checando se o número da posição está no conjunto
+                t = supersample(x, y);
+                if(t){
+                    // Pintando o caractere nessa posição
+                    c = color_map(t);
+                    attron(COLOR_PAIR(c));
+                    mvaddch(i, j, '@');
+                    attroff(COLOR_PAIR(c));
+                }
             }
         }
+        refresh(); // Mostra o frame na tela
+        key = getch(); // Espera a próxima tecla ser apertada
+        clear();
     }
-    refresh(); // Mostra o frame na tela
     
-
-    // Espera o usuário pressionar um botão para sair
-    getch();
+    // Encerra o programa
     endwin();
 }
