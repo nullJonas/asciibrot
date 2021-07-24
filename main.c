@@ -2,11 +2,12 @@
 #include <math.h>
 #include <ncurses.h>
 
-// Essas constantes devem ser trocadas por variáveis mais tarde
+// Constantes baseadas no tamanho do terminal
 #define XSCALE 4.7 / COLS
-#define XOFFSET 2.9
+#define XOFFSET 2.35
 #define YSCALE 2.6 / LINES
 #define YOFFSET 1.3
+
 #define ITERATIONS 96
 
 int mandelbrot(double x, double y){
@@ -52,15 +53,19 @@ int supersample(double x, double y){
 }
 
 int color_map(int t){
-    int n = (1 + t * 5 / 16) % 30;
+    if(t){
+    int n = 1 + (t / 4) % 30;
     return n;
+    }
+    return 30;
 }
 
 void init_color_pairs(int codes[30]){
     int i;
     for(i = 0; i < 30; i++){
-        init_pair(i,codes[i],COLOR_BLACK);
+        init_pair(i,codes[i],16);
     }
+    init_pair(30, 16, 16);
 }
 
 int main(){
@@ -87,6 +92,9 @@ int main(){
     double cos_theta = 1;
     double sin_theta_new, x_new;
 
+    // Fator de zoom da tela
+    double zoom = 1;
+
     // Tecla atualmente pressionada
     char key;
     
@@ -94,16 +102,16 @@ int main(){
         // Realiza o movimento, a rotação e o dimensionamento
         switch (key){
             case 'w':
-                rposy += YSCALE;
+                rposy += YSCALE * 2 * zoom;
                 break;
             case 's':
-                rposy -= YSCALE;
+                rposy -= YSCALE * 2 * zoom;
                 break;
             case 'd':
-                rposx += XSCALE * 2;
+                rposx += XSCALE * 4 * zoom;
                 break;
             case 'a':
-                rposx -= XSCALE * 2;
+                rposx -= XSCALE * 4 * zoom;
                 break;
             case 'e':
                 sin_theta_new = sin_theta*0.999688 - cos_theta*0.024997;
@@ -116,10 +124,10 @@ int main(){
                 sin_theta = sin_theta_new;
                 break;
             case 'i':
-                //+zoom
+                zoom /= 1.05;
                 break;
             case 'o':
-                //-zoom
+                zoom *= 1.05;
                 break;
             default:
                 break;
@@ -127,9 +135,16 @@ int main(){
         // Desenha o frame atual
         for(i = 0; i < LINES; i++){
             for(j = 0; j < COLS; j++){
-                // Ajustando a posição e as dimensões do pixel
-                x = j * XSCALE - XOFFSET + rposx;
-                y = YOFFSET - i * YSCALE + rposy;
+                // Ajustando a posição do pixel
+                x = j * XSCALE - XOFFSET;
+                y = YOFFSET - i * YSCALE;
+
+                // Ajustando as dimensões do pixel
+                x *= zoom;
+                y *= zoom;
+
+                x += rposx;
+                y += rposy;
 
                 // Ajustando a rotação do pixel
                 x_new = x*cos_theta - y*sin_theta;
@@ -137,17 +152,17 @@ int main(){
                 x = x_new;
 
                 // Checando se o número da posição está no conjunto
-                t = supersample(x, y);
-                if(t){
-                    // Pintando o caractere nessa posição
-                    c = color_map(t);
-                    attron(COLOR_PAIR(c));
-                    mvaddch(i, j, '@');
-                    attroff(COLOR_PAIR(c));
-                }
+                t = mandelbrot(x, y);
+                //t = supersample(x, y);
+                // Pintando o caractere nessa posição
+                c = color_map(t);
+                attron(COLOR_PAIR(c));
+                mvaddch(i, j, '@');
+                attroff(COLOR_PAIR(c));
             }
         }
         refresh(); // Mostra o frame na tela
+        flushinp();
         key = getch(); // Espera a próxima tecla ser apertada
         clear();
     }
@@ -155,3 +170,4 @@ int main(){
     // Encerra o programa
     endwin();
 }
+//TODO: Fazer a tela rodar em torno do centro atual e não de 0,0
