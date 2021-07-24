@@ -77,9 +77,19 @@ int main(){
 
     int i, j, t, c;
     double x, y;
-    double rposx = 0; // Posição do centro da tela
-    double rposy = 0; // em relação a x = 0, y = 0
+
+    // Posição do centro da tela em relação a x = 0, y = 0
+    double rposx = 0;
+    double rposy = 0;
+
+    // Seno e cosseno do ângulo de rotação da tela em relação ao eixo-x
+    double sin_theta = 0;
+    double cos_theta = 1;
+    double sin_theta_new, x_new;
+
+    // Tecla atualmente pressionada
     char key;
+    
     while(key != '\e'){
         // Realiza o movimento, a rotação e o dimensionamento
         switch (key){
@@ -96,10 +106,14 @@ int main(){
                 rposx -= XSCALE * 2;
                 break;
             case 'e':
-                //horário
+                sin_theta_new = sin_theta*0.999688 - cos_theta*0.024997;
+                cos_theta = cos_theta*0.999688 + sin_theta*0.024997;
+                sin_theta = sin_theta_new;
                 break;
             case 'q':
-                //anti-horário
+                sin_theta_new = sin_theta*0.999688 + cos_theta*0.024997;
+                cos_theta = cos_theta*0.999688 - sin_theta*0.024997;
+                sin_theta = sin_theta_new;
                 break;
             case 'i':
                 //+zoom
@@ -110,13 +124,17 @@ int main(){
             default:
                 break;
         }
-
         // Desenha o frame atual
         for(i = 0; i < LINES; i++){
             for(j = 0; j < COLS; j++){
                 // Ajustando a posição e as dimensões do pixel
                 x = j * XSCALE - XOFFSET + rposx;
                 y = YOFFSET - i * YSCALE + rposy;
+
+                // Ajustando a rotação do pixel
+                x_new = x*cos_theta - y*sin_theta;
+                y     = y*cos_theta + x*sin_theta;
+                x = x_new;
 
                 // Checando se o número da posição está no conjunto
                 t = supersample(x, y);
