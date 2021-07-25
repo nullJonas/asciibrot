@@ -2,13 +2,13 @@
 #include <math.h>
 #include <ncurses.h>
 
+#define ITERATIONS 128
+
 // Constantes baseadas no tamanho do terminal
 #define XSCALE 4.7 / COLS
 #define XOFFSET 2.35
 #define YSCALE 2.6 / LINES
 #define YOFFSET 1.3
-
-#define ITERATIONS 96
 
 int mandelbrot(double x, double y){
     int t;
@@ -54,18 +54,18 @@ int supersample(double x, double y){
 
 int color_map(int t){
     if(t){
-    int n = 1 + (t / 4) % 30;
+    int n = 1 + (t / 3) % 30;
     return n;
     }
-    return 30;
+    return 31;
 }
 
 void init_color_pairs(int codes[30]){
     int i;
-    for(i = 0; i < 30; i++){
-        init_pair(i,codes[i],16);
+    for(i = 1; i < 31; i++){
+        init_pair(i,codes[i - 1],16);
     }
-    init_pair(30, 16, 16);
+    init_pair(31,16,16);
 }
 
 int main(){
