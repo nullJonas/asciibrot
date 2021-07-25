@@ -81,7 +81,11 @@ int main(){
     init_color_pairs(color_codes);
 
     int i, j, t, c;
-    double x, y;
+    double x, y, x_new, y_new;
+
+    double x_scale = XSCALE;
+    double y_scale = YSCALE;
+    double x_speed, y_speed;
 
     // Posição do centro da tela em relação a x = 0, y = 0
     double rposx = 0;
@@ -90,7 +94,7 @@ int main(){
     // Seno e cosseno do ângulo de rotação da tela em relação ao eixo-x
     double sin_theta = 0;
     double cos_theta = 1;
-    double sin_theta_new, x_new;
+    double sin_theta_new;
 
     // Fator de zoom da tela
     double zoom = 1;
@@ -99,19 +103,27 @@ int main(){
     char key;
     
     while(key != '\e'){
-        // Realiza o movimento, a rotação e o dimensionamento
+        // Ajusta a velocidade do movimento ao nível de zoom
+        y_speed = y_scale * 2 * zoom;
+        x_speed = x_scale * 4 * zoom;
+
+        // Interpreta a tecla pressionada
         switch (key){
             case 'w':
-                rposy += YSCALE * 2 * zoom;
+                rposx -= x_speed * sin_theta;
+                rposy += y_speed * cos_theta;
                 break;
             case 's':
-                rposy -= YSCALE * 2 * zoom;
+                rposx += x_speed * sin_theta;
+                rposy -= y_speed * cos_theta;
                 break;
             case 'd':
-                rposx += XSCALE * 4 * zoom;
+                rposx += x_speed * cos_theta;
+                rposy += y_speed * sin_theta;
                 break;
             case 'a':
-                rposx -= XSCALE * 4 * zoom;
+                rposx -= x_speed * cos_theta;
+                rposy -= y_speed * sin_theta;
                 break;
             case 'e':
                 sin_theta_new = sin_theta*0.999688 - cos_theta*0.024997;
@@ -136,20 +148,18 @@ int main(){
         for(i = 0; i < LINES; i++){
             for(j = 0; j < COLS; j++){
                 // Ajustando a posição do pixel
-                x = j * XSCALE - XOFFSET;
-                y = YOFFSET - i * YSCALE;
+                x = j * x_scale - XOFFSET;
+                y = YOFFSET - i * y_scale;
 
                 // Ajustando as dimensões do pixel
                 x *= zoom;
                 y *= zoom;
 
-                x += rposx;
-                y += rposy;
-
                 // Ajustando a rotação do pixel
                 x_new = x*cos_theta - y*sin_theta;
-                y     = y*cos_theta + x*sin_theta;
-                x = x_new;
+                y_new = y*cos_theta + x*sin_theta;
+                x = x_new + rposx;
+                y = y_new + rposy;
 
                 // Checando se o número da posição está no conjunto
                 t = mandelbrot(x, y);
@@ -170,4 +180,3 @@ int main(){
     // Encerra o programa
     endwin();
 }
-//TODO: Fazer a tela rodar em torno do centro atual e não de 0,0
