@@ -39,6 +39,7 @@ int mandelbrot(double x, double y){
     return 0;
 }
 
+// No final eu acabei não usando essa função, mas vou deixar ela aqui
 int supersample(double x, double y){
     /* Hexagonal supersampling: */
     int centro = mandelbrot(x,y);
@@ -172,6 +173,7 @@ int main(){
                 // Checando se o número da posição está no conjunto
                 t = mandelbrot(x, y);
                 //t = supersample(x, y);
+
                 // Pintando o caractere nessa posição
                 c = color_map(t);
                 attron(COLOR_PAIR(c));
