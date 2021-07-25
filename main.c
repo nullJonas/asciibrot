@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <math.h>
 #include <ncurses.h>
 
@@ -80,25 +82,29 @@ int main(){
                            220,214,208,202,196,197,198,199,200,201,165,129,93,57};
     init_color_pairs(color_codes);
 
+    // Inicia os caracteres aleatórios
+    int size = LINES*COLS;
+    char ascii[size];
+    srand(time(0));
+    for(int i = 0;i < size;i++){
+        ascii[i] = 33 + rand()%93;
+    }
+
+    // Inicia variáveis:
     int i, j, t, c;
     double x, y, x_new, y_new;
-
     double x_scale = XSCALE;
     double y_scale = YSCALE;
     double x_speed, y_speed;
-
     // Posição do centro da tela em relação a x = 0, y = 0
     double rposx = 0;
     double rposy = 0;
-
     // Seno e cosseno do ângulo de rotação da tela em relação ao eixo-x
     double sin_theta = 0;
     double cos_theta = 1;
     double sin_theta_new;
-
     // Fator de zoom da tela
     double zoom = 1;
-
     // Tecla atualmente pressionada
     char key;
     
@@ -144,7 +150,9 @@ int main(){
             default:
                 break;
         }
+
         // Desenha o frame atual
+        int count = 0;
         for(i = 0; i < LINES; i++){
             for(j = 0; j < COLS; j++){
                 // Ajustando a posição do pixel
@@ -167,8 +175,9 @@ int main(){
                 // Pintando o caractere nessa posição
                 c = color_map(t);
                 attron(COLOR_PAIR(c));
-                mvaddch(i, j, '@');
+                mvaddch(i, j, ascii[count]);
                 attroff(COLOR_PAIR(c));
+                count++;
             }
         }
         refresh(); // Mostra o frame na tela
