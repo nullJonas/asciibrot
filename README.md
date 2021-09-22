@@ -1,2 +1,2 @@
-![text](https://github.com/nullJonas/asciibrot/blob/main/screenshots/screenshot_8.png)
+![text](https://gfycat.com/ornatesomecrustacean)
 # asciibrot
