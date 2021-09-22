@@ -13,6 +13,7 @@ ESC para sair.
 
 ### Como executar:
 Em um terminal basta executar, na pasta do repositório:
+
 ```./asciibrot```
 
 ### Como compilar:
