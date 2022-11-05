@@ -185,7 +185,6 @@ int main(){
         refresh(); // Mostra o frame na tela
         flushinp();
         key = getch(); // Espera a próxima tecla ser apertada
-        clear();
     }
     
     // Encerra o programa
